@@ -87,6 +87,31 @@ pub enum HttpError {
     SSLHandshake(HandshakeError<TcpStream>),
 }
 
+#[inline(always)]
+pub fn get(url: &str) -> Result<Response, HttpError> {
+    request::Request::new(url)?.get().send()
+}
+
+#[inline(always)]
+pub fn post(url: &str) -> Result<Response, HttpError> {
+    request::Request::new(url)?.post().send()
+}
+
+#[inline(always)]
+pub fn head(url: &str) -> Result<Response, HttpError> {
+    request::Request::new(url)?.head().send()
+}
+
+#[inline(always)]
+pub fn delete(url: &str) -> Result<Response, HttpError> {
+    request::Request::new(url)?.delete().send()
+}
+
+#[inline(always)]
+pub fn put(url: &str) -> Result<Response, HttpError> {
+    request::Request::new(url)?.put().send()
+}
+
 impl std::error::Error for HttpError {}
 
 impl From<io::Error> for HttpError {
