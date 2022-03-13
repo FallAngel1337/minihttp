@@ -87,31 +87,62 @@ pub enum HttpError {
     SSLHandshake(HandshakeError<TcpStream>),
 }
 
+
+///set Request GET method
+/// # Example
+/// ```
+/// let content = minihttp::get("https://www.google.com").unwrap().text();
+/// ```
 #[inline(always)]
 pub fn get(url: &str) -> Result<Response, HttpError> {
     request::Client::new(url)?.get()
 }
 
+///set Request POST method
+/// # Example
+/// ```
+/// let content = minihttp::post("https://www.google.com").unwrap().text();
+/// ```
 #[inline(always)]
 pub fn post(url: &str) -> Result<Response, HttpError> {
     request::Client::new(url)?.post()
 }
 
+///set Request HEAD method
+/// # Example
+/// ```
+/// let content = minihttp::head("https://www.google.com").unwrap().text();
+/// ```
 #[inline(always)]
 pub fn head(url: &str) -> Result<Response, HttpError> {
     request::Client::new(url)?.head()
 }
 
+///set Request DELETE method
+/// # Example
+/// ```
+/// let content = minihttp::delete("https://www.google.com").unwrap().text();
+/// ```
 #[inline(always)]
 pub fn delete(url: &str) -> Result<Response, HttpError> {
     request::Client::new(url)?.delete()
 }
 
+///set Request PUT method
+/// # Example
+/// ```
+/// let content = minihttp::put("https://www.google.com").unwrap().text();
+/// ```
 #[inline(always)]
 pub fn put(url: &str) -> Result<Response, HttpError> {
     request::Client::new(url)?.put()
 }
 
+///set Request OPTIONS method
+/// # Example
+/// ```
+/// let content = minihttp::options("https://www.google.com").unwrap().text();
+/// ```
 #[inline(always)]
 pub fn options(url: &str) -> Result<Response, HttpError> {
     request::Client::new(url)?.options()
