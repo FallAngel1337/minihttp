@@ -25,7 +25,7 @@ struct Request {
     scheme: String,
     method: String,
     url: Url,
-    headers: HashMap<String, String>,
+    headers: Vec<(String, String)>,
     body: Option<Vec<u8>>,
     timeout: u64,
     proxy: Option<Proxy>,
@@ -55,7 +55,7 @@ impl Request {
             scheme: url.scheme.clone(),
             method: String::new(),
             url,
-            headers: HashMap::new(),
+            headers: Vec::new(),
             body: None,
             timeout: 30,
             proxy: None,
@@ -165,7 +165,7 @@ impl Request {
     /// headers.insert("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
     /// http.headers(headers);
     /// ```
-    pub fn headers(&mut self, data: HashMap<String, String>) -> &mut Self {
+    pub fn headers(&mut self, data: Vec<(String, String)>) -> &mut Self {
         self.headers = data;
         self
     }
@@ -448,6 +448,16 @@ impl Client {
 
     pub fn body(&mut self, body: Vec<u8>) -> &mut Self {
         self.0.body(body);
+        self
+    }
+
+    pub fn timeout(&mut self, timeout: u64) -> &mut Self {
+        self.0.timeout(timeout);
+        self
+    }
+
+    pub fn headers(&mut self, headers: Vec<(String, String)>) -> &mut Self {
+        self.0.headers(headers);
         self
     }
 
