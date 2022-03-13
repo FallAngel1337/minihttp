@@ -446,6 +446,11 @@ impl Client {
         )
     }
 
+    pub fn body(&mut self, body: Vec<u8>) -> &mut Self {
+        self.0.body(body);
+        self
+    }
+
     #[inline(always)]
     pub fn get(&mut self) -> Result<Response, HttpError> {
         self.0.get().send()
