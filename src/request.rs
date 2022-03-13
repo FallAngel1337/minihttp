@@ -19,7 +19,7 @@ pub struct Proxy {
 
 ///http request object.
 #[derive(Debug, Clone)]
-pub struct Request {
+struct Request {
     host: String,
     port: u16,
     scheme: String,
@@ -31,6 +31,8 @@ pub struct Request {
     proxy: Option<Proxy>,
     verify: bool,
 }
+
+pub struct Client(Request);
 
 impl Request {
     ///return a Request object
@@ -434,6 +436,39 @@ impl Request {
             headers.push_str("\r\n");
             headers
         }
+    }
+}
+
+impl Client {
+    pub fn new(url: &str) -> Result<Self, HttpError> {
+        Ok (
+            Self(Request::new(url)?)
+        )
+    }
+
+    #[inline(always)]
+    pub fn get(&mut self) -> Result<Response, HttpError> {
+        self.0.get().send()
+    }
+
+    #[inline(always)]
+    pub fn post(&mut self) -> Result<Response, HttpError> {
+        self.0.post().send()
+    }
+
+    #[inline(always)]
+    pub fn head(&mut self) -> Result<Response, HttpError> {
+        self.0.head().send()
+    }
+
+    #[inline(always)]
+    pub fn delete(&mut self) -> Result<Response, HttpError> {
+        self.0.delete().send()
+    }
+
+    #[inline(always)]
+    pub fn put(&mut self) -> Result<Response, HttpError> {
+        self.0.put().send()
     }
 }
 

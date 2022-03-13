@@ -89,27 +89,27 @@ pub enum HttpError {
 
 #[inline(always)]
 pub fn get(url: &str) -> Result<Response, HttpError> {
-    request::Request::new(url)?.get().send()
+    request::Client::new(url)?.get()
 }
 
 #[inline(always)]
 pub fn post(url: &str) -> Result<Response, HttpError> {
-    request::Request::new(url)?.post().send()
+    request::Client::new(url)?.post()
 }
 
 #[inline(always)]
 pub fn head(url: &str) -> Result<Response, HttpError> {
-    request::Request::new(url)?.head().send()
+    request::Client::new(url)?.head()
 }
 
 #[inline(always)]
 pub fn delete(url: &str) -> Result<Response, HttpError> {
-    request::Request::new(url)?.delete().send()
+    request::Client::new(url)?.delete()
 }
 
 #[inline(always)]
 pub fn put(url: &str) -> Result<Response, HttpError> {
-    request::Request::new(url)?.put().send()
+    request::Client::new(url)?.put()
 }
 
 impl std::error::Error for HttpError {}
