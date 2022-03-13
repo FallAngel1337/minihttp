@@ -112,6 +112,11 @@ pub fn put(url: &str) -> Result<Response, HttpError> {
     request::Client::new(url)?.put()
 }
 
+#[inline(always)]
+pub fn options(url: &str) -> Result<Response, HttpError> {
+    request::Client::new(url)?.options()
+}
+
 impl std::error::Error for HttpError {}
 
 impl From<io::Error> for HttpError {

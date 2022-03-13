@@ -475,6 +475,11 @@ impl Client {
     pub fn put(&mut self) -> Result<Response, HttpError> {
         self.0.put().send()
     }
+
+    #[inline(always)]
+    pub fn options(&mut self) -> Result<Response, HttpError> {
+        self.0.options().send()
+    }
 }
 
 #[cfg(test)]
