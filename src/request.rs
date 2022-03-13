@@ -37,7 +37,7 @@ impl Request {
     ///return a Request object
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// ```
@@ -65,7 +65,7 @@ impl Request {
     ///set Request GET method
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.get();
@@ -78,7 +78,7 @@ impl Request {
     ///set Request POST method
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.post();
@@ -91,7 +91,7 @@ impl Request {
     ///set Request PUT method
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.put();
@@ -104,7 +104,7 @@ impl Request {
     ///set Request HEAD method
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.head();
@@ -117,7 +117,7 @@ impl Request {
     ///set Request DELETE method
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.delete();
@@ -130,7 +130,7 @@ impl Request {
     ///set Request OPTION method
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.options();
@@ -143,7 +143,7 @@ impl Request {
     ///set Request custom method
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.request("profile");
@@ -156,7 +156,7 @@ impl Request {
     ///set Request custom header
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     /// use std::collections::HashMap;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
@@ -172,7 +172,7 @@ impl Request {
     ///set Request body
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// let body = vec![0,1,2,3,4];
@@ -186,7 +186,7 @@ impl Request {
     ///set Request string body
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// let body = "hello";
@@ -201,7 +201,7 @@ impl Request {
     ///set Request read/write timeout(sec)
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.timeout(10);
@@ -214,7 +214,7 @@ impl Request {
     ///set https request  if verify the certificate(default true)
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.verify(false);
@@ -231,7 +231,7 @@ impl Request {
     ///set proxy info
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.proxy("https://127.0.0.1:1080");
@@ -260,7 +260,7 @@ impl Request {
     ///send https request
     /// # Example
     /// ```
-    /// use minihttp::request::Request;
+    /// use minihttp::Request;
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// http.get().send();
@@ -448,7 +448,7 @@ impl Client {
     ///set Client's body
     /// # Example
     /// ```
-    /// use minihttp::request::Client;
+    /// use minihttp::Client;
     ///
     /// let mut client = Client::new("https://www.google.com").unwrap();
     /// let body = vec![0,1,2,3,4];
@@ -462,7 +462,7 @@ impl Client {
     ///set Client's read/write timeout(sec)
     /// # Example
     /// ```
-    /// use minihttp::request::Client;
+    /// use minihttp::Client;
     ///
     /// let mut client = Client::new("https://www.google.com").unwrap();
     /// client.timeout(10);
@@ -475,7 +475,7 @@ impl Client {
     ///set Client's custom header
     /// # Example
     /// ```
-    /// use minihttp::request::Client;
+    /// use minihttp::Client;
     ///
     /// let mut client = Client::new("https://www.google.com").unwrap();
     /// let mut headers = vec![("User-Agent".to_owned(), "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36".to_owned())]
@@ -489,7 +489,7 @@ impl Client {
     ///set Client's custom method
     /// # Example
     /// ```
-    /// use minihttp::request::Client;
+    /// use minihttp::Client;
     ///
     /// let mut client = Client::new("https://www.google.com").unwrap();
     /// client.request("profile");
@@ -502,7 +502,7 @@ impl Client {
     ///set http(s) request if verify the certificate(default true)
     /// # Example
     /// ```
-    /// use minihttp::request::Client;
+    /// use minihttp::Client;
     ///
     /// let mut client = Client::new("https://www.google.com").unwrap();
     /// client.verify(false);
@@ -515,7 +515,7 @@ impl Client {
     ///set proxy info
     /// # Example
     /// ```
-    /// use minihttp::request::Client;
+    /// use minihttp::Client;
     ///
     /// let mut client = Client::new("https://www.google.com").unwrap();
     /// client.proxy("https://127.0.0.1:1080");
@@ -528,7 +528,7 @@ impl Client {
     ///send http(s) request
     /// # Example
     /// ```
-    /// use minihttp::request::Client;
+    /// use minihttp::Client;
     ///
     /// let mut client = Client::new("https://www.google.com").unwrap();
     /// client.request("GET").send();
