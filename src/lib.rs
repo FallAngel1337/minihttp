@@ -74,7 +74,8 @@ use std::io;
 use std::net::TcpStream;
 
 ///http request module
-pub mod request;
+mod request;
+pub use request::{Client, Proxy};
 
 ///http basic error type
 #[derive(Debug)]
