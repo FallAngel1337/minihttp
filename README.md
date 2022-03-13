@@ -14,7 +14,7 @@ Enjoy yourself...
 ### Send a GET request
 
 ```rust
-// Using the shortcut funtion
+// Using the shortcut function
 let content = minihttp::get("https://google.com").unwrap().text();
 println!("{content}");
 
@@ -63,4 +63,10 @@ let content = minihttp::Client::new("http://www.google.com")
   .unwrap()
   .text();
 println!("{content}");
+```
+
+### Adding it to your project
+```toml
+[dependencies]
+minihttp = { git = "https://github.com/FallAngel1337/minihttp", branch = "main" }
 ```
