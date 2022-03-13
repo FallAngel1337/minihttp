@@ -96,7 +96,7 @@ pub enum HttpError {
 /// ```
 #[inline(always)]
 pub fn get(url: &str) -> Result<Response, HttpError> {
-    request::Client::new(url)?.get()
+    request::Client::new(url)?.get().send()
 }
 
 ///set Request POST method
@@ -106,7 +106,7 @@ pub fn get(url: &str) -> Result<Response, HttpError> {
 /// ```
 #[inline(always)]
 pub fn post(url: &str) -> Result<Response, HttpError> {
-    request::Client::new(url)?.post()
+    request::Client::new(url)?.post().send()
 }
 
 ///set Request HEAD method
@@ -116,7 +116,7 @@ pub fn post(url: &str) -> Result<Response, HttpError> {
 /// ```
 #[inline(always)]
 pub fn head(url: &str) -> Result<Response, HttpError> {
-    request::Client::new(url)?.head()
+    request::Client::new(url)?.head().send()
 }
 
 ///set Request DELETE method
@@ -126,7 +126,7 @@ pub fn head(url: &str) -> Result<Response, HttpError> {
 /// ```
 #[inline(always)]
 pub fn delete(url: &str) -> Result<Response, HttpError> {
-    request::Client::new(url)?.delete()
+    request::Client::new(url)?.delete().send()
 }
 
 ///set Request PUT method
@@ -136,7 +136,7 @@ pub fn delete(url: &str) -> Result<Response, HttpError> {
 /// ```
 #[inline(always)]
 pub fn put(url: &str) -> Result<Response, HttpError> {
-    request::Client::new(url)?.put()
+    request::Client::new(url)?.put().send()
 }
 
 ///set Request OPTIONS method
@@ -146,7 +146,7 @@ pub fn put(url: &str) -> Result<Response, HttpError> {
 /// ```
 #[inline(always)]
 pub fn options(url: &str) -> Result<Response, HttpError> {
-    request::Client::new(url)?.options()
+    request::Client::new(url)?.options().send()
 }
 
 impl std::error::Error for HttpError {}

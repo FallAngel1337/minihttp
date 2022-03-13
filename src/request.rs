@@ -18,7 +18,7 @@ pub struct Proxy {
 
 ///http request object.
 #[derive(Debug, Clone)]
-struct Request {
+pub struct Client {
     host: String,
     port: u16,
     scheme: String,
@@ -31,9 +31,9 @@ struct Request {
     verify: bool,
 }
 
-pub struct Client(Request);
+// pub struct Client(Request);
 
-impl Request {
+impl Client {
     ///return a Request object
     /// # Example
     /// ```
@@ -41,14 +41,14 @@ impl Request {
     ///
     /// let mut http = Request::new("https://www.google.com").unwrap();
     /// ```
-    pub fn new(url: &str) -> Result<Request, HttpError> {
+    pub fn new(url: &str) -> Result<Self, HttpError> {
         let url: Url = Url::parse(url);
 
         let host = match url.host {
             Some(ref h) => h.clone(),
             None => return Err(HttpError::Parse("url parse error")),
         };
-        Ok(Request {
+        Ok(Self {
             host,
             port: url.port,
             scheme: url.scheme.clone(),
@@ -65,10 +65,10 @@ impl Request {
     ///set Request GET method
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::CLient;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.get();
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.get();
     /// ```
     pub fn get(&mut self) -> &mut Self {
         self.method = "GET".to_owned();
@@ -78,10 +78,10 @@ impl Request {
     ///set Request POST method
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::CLient;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.post();
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.post();
     /// ```
     pub fn post(&mut self) -> &mut Self {
         self.method = "POST".to_owned();
@@ -91,10 +91,10 @@ impl Request {
     ///set Request PUT method
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::CLient;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.put();
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.put();
     /// ```
     pub fn put(&mut self) -> &mut Self {
         self.method = "PUT".to_owned();
@@ -104,10 +104,10 @@ impl Request {
     ///set Request HEAD method
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::CLient;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.head();
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.head();
     /// ```
     pub fn head(&mut self) -> &mut Self {
         self.method = "HEAD".to_owned();
@@ -117,10 +117,10 @@ impl Request {
     ///set Request DELETE method
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::CLient;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.delete();
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.delete();
     /// ```
     pub fn delete(&mut self) -> &mut Self {
         self.method = "DELETE".to_owned();
@@ -130,94 +130,77 @@ impl Request {
     ///set Request OPTION method
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::CLient;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.options();
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.options();
     /// ```
     pub fn options(&mut self) -> &mut Self {
         self.method = "OPTIONS".to_owned();
         self
     }
 
-    ///set Request custom method
+    ///set Client's custom method
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::Client;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.request("profile");
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.request("profile");
     /// ```
     pub fn request(&mut self, method: &str) -> &mut Self {
         self.method = method.to_string();
         self
     }
 
-    ///set Request custom header
+    ///set Client's custom header
     /// # Example
     /// ```
-    /// use minihttp::Request;
-    /// use std::collections::HashMap;
+    /// use minihttp::Client;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// let mut headers = HashMap::new();
-    /// headers.insert("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-    /// http.headers(headers);
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// let mut headers = vec![("User-Agent".to_owned(), "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36".to_owned())]
+    /// client.headers(headers);
     /// ```
     pub fn headers(&mut self, data: Vec<(String, String)>) -> &mut Self {
         self.headers = data;
         self
     }
 
-    ///set Request body
+    ///set Client's body
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::Client;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
+    /// let mut client = Client::new("https://www.google.com").unwrap();
     /// let body = vec![0,1,2,3,4];
-    /// http.body(body);
+    /// client.body(body);
     /// ```
     pub fn body(&mut self, data: Vec<u8>) -> &mut Self {
         self.body = Some(data);
         self
     }
 
-    ///set Request string body
+    ///set Client's read/write timeout(sec)
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::Client;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// let body = "hello";
-    /// http.body_str(body);
-    /// ```
-    pub fn body_str(&mut self, data: &str) -> &mut Self {
-        let body = data.as_bytes().to_owned();
-        self.body = Some(body);
-        self
-    }
-
-    ///set Request read/write timeout(sec)
-    /// # Example
-    /// ```
-    /// use minihttp::Request;
-    ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.timeout(10);
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.timeout(10);
     /// ```
     pub fn timeout(&mut self, time: u64) -> &mut Self {
         self.timeout = time;
         self
     }
 
-    ///set https request  if verify the certificate(default true)
+    ///set http(s) request if verify the certificate(default true)
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::Client;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.verify(false);
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.verify(false);
     /// ```
     pub fn verify(&mut self, verify: bool) -> Result<&mut Self, HttpError> {
         if self.scheme == "https" {
@@ -231,10 +214,10 @@ impl Request {
     ///set proxy info
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::Client;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.proxy("https://127.0.0.1:1080");
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.proxy("https://127.0.0.1:1080");
     /// ```
     pub fn proxy(&mut self, proxy: &str) -> Result<&mut Self, HttpError> {
         let url: Url = Url::parse(proxy);
@@ -257,13 +240,13 @@ impl Request {
         Ok(self)
     }
 
-    ///send https request
+    ///send http(s) request
     /// # Example
     /// ```
-    /// use minihttp::Request;
+    /// use minihttp::Client;
     ///
-    /// let mut http = Request::new("https://www.google.com").unwrap();
-    /// http.get().send();
+    /// let mut client = Client::new("https://www.google.com").unwrap();
+    /// client.request("GET").send();
     /// ```
     pub fn send(&mut self) -> Result<Response, HttpError> {
         if let Some(ref proxy) = self.proxy {
@@ -438,136 +421,6 @@ impl Request {
     }
 }
 
-impl Client {
-    pub fn new(url: &str) -> Result<Self, HttpError> {
-        Ok (
-            Self(Request::new(url)?)
-        )
-    }
-
-    ///set Client's body
-    /// # Example
-    /// ```
-    /// use minihttp::Client;
-    ///
-    /// let mut client = Client::new("https://www.google.com").unwrap();
-    /// let body = vec![0,1,2,3,4];
-    /// client.body(body);
-    /// ```
-    pub fn body(&mut self, body: Vec<u8>) -> &mut Self {
-        self.0.body(body);
-        self
-    }
-
-    ///set Client's read/write timeout(sec)
-    /// # Example
-    /// ```
-    /// use minihttp::Client;
-    ///
-    /// let mut client = Client::new("https://www.google.com").unwrap();
-    /// client.timeout(10);
-    /// ```
-    pub fn timeout(&mut self, timeout: u64) -> &mut Self {
-        self.0.timeout(timeout);
-        self
-    }
-
-    ///set Client's custom header
-    /// # Example
-    /// ```
-    /// use minihttp::Client;
-    ///
-    /// let mut client = Client::new("https://www.google.com").unwrap();
-    /// let mut headers = vec![("User-Agent".to_owned(), "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36".to_owned())]
-    /// client.headers(headers);
-    /// ```
-    pub fn headers(&mut self, headers: Vec<(String, String)>) -> &mut Self {
-        self.0.headers(headers);
-        self
-    }
-
-    ///set Client's custom method
-    /// # Example
-    /// ```
-    /// use minihttp::Client;
-    ///
-    /// let mut client = Client::new("https://www.google.com").unwrap();
-    /// client.request("profile");
-    /// ```
-    pub fn request(&mut self, method: &str) -> &mut Self {
-        self.0.request(method);
-        self
-    }
-
-    ///set http(s) request if verify the certificate(default true)
-    /// # Example
-    /// ```
-    /// use minihttp::Client;
-    ///
-    /// let mut client = Client::new("https://www.google.com").unwrap();
-    /// client.verify(false);
-    /// ```
-    pub fn verify(&mut self, verify: bool) -> Result<&mut Self, HttpError> {
-        self.0.verify(verify)?;
-        Ok(self)
-    }
-
-    ///set proxy info
-    /// # Example
-    /// ```
-    /// use minihttp::Client;
-    ///
-    /// let mut client = Client::new("https://www.google.com").unwrap();
-    /// client.proxy("https://127.0.0.1:1080");
-    /// ```
-    pub fn proxy(&mut self, proxy: &str) -> Result<&mut Self, HttpError> {
-        self.0.proxy(proxy)?;
-        Ok(self)
-    }
-
-    ///send http(s) request
-    /// # Example
-    /// ```
-    /// use minihttp::Client;
-    ///
-    /// let mut client = Client::new("https://www.google.com").unwrap();
-    /// client.request("GET").send();
-    /// ```
-    pub fn send(&mut self) -> Result<Response, HttpError> {
-        self.0.send()
-    }
-
-    #[inline(always)]
-    pub fn get(&mut self) -> Result<Response, HttpError> {
-        self.0.get().send()
-    }
-
-    #[inline(always)]
-    pub fn post(&mut self) -> Result<Response, HttpError> {
-        self.0.post().send()
-    }
-
-    #[inline(always)]
-    pub fn head(&mut self) -> Result<Response, HttpError> {
-        self.0.head().send()
-    }
-
-    #[inline(always)]
-    pub fn delete(&mut self) -> Result<Response, HttpError> {
-        self.0.delete().send()
-    }
-
-    #[inline(always)]
-    pub fn put(&mut self) -> Result<Response, HttpError> {
-        self.0.put().send()
-    }
-
-    #[inline(always)]
-    pub fn options(&mut self) -> Result<Response, HttpError> {
-        self.0.options().send()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -580,6 +433,7 @@ mod tests {
             http.verify(false)
                 .unwrap()
                 .get()
+                .send()
                 .unwrap()
                 .status_code()
         )
@@ -593,6 +447,7 @@ mod tests {
             http
                 .body("username=bob".as_bytes().to_vec())
                 .post()
+                .send()
                 .unwrap()
                 .status_code()
         )
@@ -603,14 +458,14 @@ mod tests {
         let mut http = Client::new("https://docs.rs/").unwrap();
         println!(
             "{}",
-            http.headers(vec![("Content-Type".to_string(), "text/html; charset=utf-8".to_string())]).get().unwrap().status_code()
+            http.headers(vec![("Content-Type".to_string(), "text/html; charset=utf-8".to_string())]).get().send().unwrap().status_code()
         )
     }
 
     #[test]
     fn http_get_back_header() {
         let mut http = Client::new("https://docs.rs/").unwrap();
-        let headers = http.get().unwrap().headers();
+        let headers = http.get().send().unwrap().headers();
         for (k, v) in headers {
             println!("{}:{}", k, v);
         }
@@ -623,6 +478,7 @@ mod tests {
             .proxy("https://127.0.0.1:1080")
             .unwrap()
             .get()
+            .send()
             .unwrap();
         println!("{}", res.status_code());
     }
