@@ -6,6 +6,7 @@ license = "MIT/Apache-2.0"
 description = "smolhttp is a fork of the original minihttp and aims to keep simple and lightweight"
 include = ["src/*.rs", "Cargo.toml"]
 publish = true
+keywords = [ "http", "small", "lightweight", "requests" ]
 homepage = "https://github.com/FallAngel1337/smolhttp"
 repository = "https://github.com/FallAngel1337/smolhttp"
 
