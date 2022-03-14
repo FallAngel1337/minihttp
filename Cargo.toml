@@ -1,14 +1,13 @@
 [package]
-name = "minihttp"
-version = "0.1.9"
-authors = ["p00s <pin9sb@gmail.com>"]
+name = "smolhttp"
+version = "1.0.0"
+authors = ["p00s <pin9sb@gmail.com>", "FallAngel <fallangel@protonmail.com>"]
 license = "MIT/Apache-2.0"
-description = "minihttp is a simple and lightweight http client lib for rust."
+description = "smolhttp is a fork of the original minihttp and aims to keep simple and lightweight"
 include = ["src/*.rs", "Cargo.toml"]
 publish = true
-documentation = "https://docs.rs/minihttp"
-homepage = "https://github.com/p00s/minihttp"
-repository = "https://github.com/p00s/minihttp"
+homepage = "https://github.com/FallAngel1337/smolhttp"
+repository = "https://github.com/FallAngel1337/smolhttp"
 
 [dependencies]
 miniurl = "0.1.3"
