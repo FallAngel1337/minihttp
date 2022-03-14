@@ -1,8 +1,6 @@
-//! smolhttp is a simple and lightweight http client lib for rust.
-//! only provide basic http client feature, more like python request.
-//! smolhttp's aim is simple, easy to use, less dependent, smaller binary.
-//! Enjoy yourself...
-//!
+//! This project is a fork of the original [`minihttp`](https://crates.io/crates/minihttp) that tries to improve the code and add more features,
+//! dont pushing aside the main purpose of the project thats is to be `simple and lightweight`.
+//! 
 //! # Example
 //! ## Sending a GET request
 //! ```no_run
@@ -13,8 +11,10 @@
 //! // Using the Client
 //! let content = smolhttp::Client::new("https://www.rust-lang.org").unwrap().get().send().unwrap().text();
 //! println!("{content}");
+//! ```
 //! 
-//! # Example
+//! # Examples
+//! 
 //! ## Sending a POST request
 //! ```no_run
 //! // Using the shortcut funtion
@@ -56,7 +56,6 @@
 //!   .text();
 //! println!("{content}");
 //! ```
-//!
 
 #![doc(html_root_url = "https://docs.rs/minihttp")]
 
