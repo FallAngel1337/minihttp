@@ -1,6 +1,6 @@
 [package]
 name = "smolhttp"
-version = "1.0.0"
+version = "1.1.0"
 authors = ["p00s <pin9sb@gmail.com>", "FallAngel <fallangel@protonmail.com>"]
 license = "MIT/Apache-2.0"
 description = "smolhttp is a fork of the original minihttp and aims to keep simple and lightweight"
