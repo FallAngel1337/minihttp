@@ -64,5 +64,5 @@ println!("{content}");
 ### Adding it to your project
 ```toml
 [dependencies]
-smolhttp = { git = "https://github.com/FallAngel1337/smolhttp", branch = "main" }
+smolhttp = "1.0"
 ```
