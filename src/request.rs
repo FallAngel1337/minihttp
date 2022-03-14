@@ -3,9 +3,20 @@ use super::Response;
 use super::TlsConnector;
 use super::Url;
 
-use std::io::prelude::*;
+use std::{io::prelude::*, str::FromStr, fmt::Display};
 use std::net::TcpStream;
 use std::time;
+
+#[derive(Debug, Clone)]
+pub enum Methods {
+    GET,
+    POST,
+    PUT,
+    HEAD,
+    DELETE,
+    OPTIONS,
+    CUSTOM(String),
+}
 
 ///proxy info object.
 #[derive(Debug, Clone)]
@@ -22,7 +33,7 @@ pub struct Client {
     host: String,
     port: u16,
     scheme: String,
-    method: String,
+    method: Methods,
     url: Url,
     headers: Vec<(String, String)>,
     body: Option<Vec<u8>>,
@@ -31,7 +42,20 @@ pub struct Client {
     verify: bool,
 }
 
-// pub struct Client(Request);
+impl Display for Methods {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use self::Methods::*;
+        match self {
+            GET => write!(f, "GET"),
+            POST => write!(f, "POST"),
+            PUT => write!(f, "PUT"),
+            HEAD => write!(f, "HEAD"),
+            DELETE => write!(f, "DELETE"),
+            OPTIONS => write!(f, "OPTIONS"),
+            CUSTOM(method) => write!(f, "{method}"),
+        }
+    }
+}
 
 impl Client {
     ///return a Request object
@@ -52,7 +76,7 @@ impl Client {
             host,
             port: url.port,
             scheme: url.scheme.clone(),
-            method: String::new(),
+            method: Methods::GET,
             url,
             headers: Vec::new(),
             body: None,
@@ -71,7 +95,7 @@ impl Client {
     /// client.get();
     /// ```
     pub fn get(&mut self) -> &mut Self {
-        self.method = "GET".to_owned();
+        self.method = Methods::GET;
         self
     }
 
@@ -84,7 +108,7 @@ impl Client {
     /// client.post();
     /// ```
     pub fn post(&mut self) -> &mut Self {
-        self.method = "POST".to_owned();
+        self.method = Methods::POST;
         self
     }
 
@@ -97,7 +121,7 @@ impl Client {
     /// client.put();
     /// ```
     pub fn put(&mut self) -> &mut Self {
-        self.method = "PUT".to_owned();
+        self.method = Methods::PUT;
         self
     }
 
@@ -110,7 +134,7 @@ impl Client {
     /// client.head();
     /// ```
     pub fn head(&mut self) -> &mut Self {
-        self.method = "HEAD".to_owned();
+        self.method = Methods::HEAD;
         self
     }
 
@@ -123,7 +147,7 @@ impl Client {
     /// client.delete();
     /// ```
     pub fn delete(&mut self) -> &mut Self {
-        self.method = "DELETE".to_owned();
+        self.method = Methods::DELETE;
         self
     }
 
@@ -136,7 +160,7 @@ impl Client {
     /// client.options();
     /// ```
     pub fn options(&mut self) -> &mut Self {
-        self.method = "OPTIONS".to_owned();
+        self.method = Methods::OPTIONS;
         self
     }
 
@@ -149,7 +173,7 @@ impl Client {
     /// client.request("profile");
     /// ```
     pub fn request(&mut self, method: &str) -> &mut Self {
-        self.method = method.to_string();
+        self.method = Methods::CUSTOM(method.to_owned());
         self
     }
 
