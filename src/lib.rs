@@ -1,60 +1,60 @@
-//! minihttp is a simple and lightweight http client lib for rust.
+//! smolhttp is a simple and lightweight http client lib for rust.
 //! only provide basic http client feature, more like python request.
-//! minihttp's aim is simple, easy to use, less dependent, smaller binary.
+//! smolhttp's aim is simple, easy to use, less dependent, smaller binary.
 //! Enjoy yourself...
 //!
-//! #Example
-//! ## send a get request
+//! # Example
+//! ## Sending a GET request
 //! ```no_run
-//! use minihttp::request::Request;
+//! // Using the shortcut function
+//! let content = smolhttp::get("https://www.rust-lang.org").unwrap().text();
+//! println!("{content}");
 //!
-//! let mut http = Request::new("http://www.google.com").unwrap();
-//! let res = http.get().send().unwrap();
-//! println!("status code {}",res.status_code());
-//! println!("reason {}",res.reason());
-//! println!("body {}",res.text());
-//! for (k,v) in res.headers(){
-//!     println!("{}:{}",k,v);
-//! }
+//! // Using the Client
+//! let content = smolhttp::Client::new("https://www.rust-lang.org").unwrap().get().send().unwrap().text();
+//! println!("{content}");
+//! 
+//! # Example
+//! ## Sending a POST request
+//! ```no_run
+//! // Using the shortcut funtion
+//! let content = smolhttp::post("https://www.rust-lang.org").unwrap().text();
+//! println!("{content}");
+//!
+//! // Using the Client
+//! let content = smolhttp::Client::new("https://www.rust-lang.org")
+//!   .unwrap()
+//!   .post()
+//!   .send()
+//!   .unwrap()
+//!   .text();
+//! println!("{content}");
 //! ```
 //!
-//! ## send a post request
-//! ```no_run
-//! use minihttp::request::Request;
-//!
-//! let mut http = Request::new("http://www.google.com").unwrap();
-//! let res = http.post().body_str("hello").send().unwrap();
-//! println!("status code {}",res.status_code());
-//! ```
-//!
-//! ## custom headers
+//! ## Using custom headers
 //! ```no_run
 //! use std::collections::HashMap;
-//! use minihttp::request::Request;
-//!
-//! let mut http = Request::new("http://www.google.com").unwrap();
-//! let mut headers = HashMap::new();
-//! headers.insert("User-Agent","Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36");
-//! let res = http.headers(headers).send().unwrap();
-//! println!("status code {}",res.status_code());
+//! let content = smolhttp::Client::new("https://www.rust-lang.org")
+//!   .unwrap()
+//!   .post()
+//!   .headers(vec![("User-Agent".to_owned(), "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36".to_owned())])
+//!   .send()
+//!   .unwrap()
+//!   .text();
+//! println!("{content}");
 //! ```
 //!
-//! ## support https
+//! ## Using a proxy
 //! ```no_run
-//! use minihttp::request::Request;
-//!
-//! let mut http = Request::new("https://www.google.com").unwrap();
-//! let res = http.get().send().unwrap();
-//! println!("status code {}",res.status_code());
-//! ```
-//!
-//! ## support proxy
-//! ```no_run
-//! use minihttp::request::Request;
-//!
-//! let mut http = Request::new("https://www.google.com").unwrap();
-//! let res = http.proxy("https://127.0.0.1:1080").unwrap().get().send().unwrap();
-//! println!("status code {}",res.status_code());
+//! let content = smolhttp::Client::new("http://www.google.com")
+//!   .unwrap()
+//!   .proxy("http://127.0.0.1:1080")
+//!   .unwrap()
+//!   .get()
+//!   .send()
+//!   .unwrap()
+//!   .text();
+//! println!("{content}");
 //! ```
 //!
 
