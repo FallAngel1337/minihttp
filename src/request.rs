@@ -3,29 +3,23 @@ use super::Response;
 use super::TlsConnector;
 use super::Url;
 
-use std::{io::prelude::*, str::FromStr, fmt::Display};
 use std::net::TcpStream;
 use std::time;
 
 #[derive(Debug, Clone)]
 pub enum Methods {
-    GET,
-    POST,
-    PUT,
-    HEAD,
-    DELETE,
-    OPTIONS,
-    CUSTOM(String),
+    Get,
+    Post,
+    Put,
+    Head,
+    Delete,
+    Options,
+    Custom(String),
 }
 
 ///proxy info object.
 #[derive(Debug, Clone)]
-pub struct Proxy {
-    host: String,
-    port: u16,
-    scheme: String,
-    url: Url,
-}
+pub struct Proxy(Url);
 
 ///http request object.
 #[derive(Debug, Clone)]
@@ -42,17 +36,17 @@ pub struct Client {
     verify: bool,
 }
 
-impl Display for Methods {
+impl std::fmt::Display for Methods {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use self::Methods::*;
         match self {
-            GET => write!(f, "GET"),
-            POST => write!(f, "POST"),
-            PUT => write!(f, "PUT"),
-            HEAD => write!(f, "HEAD"),
-            DELETE => write!(f, "DELETE"),
-            OPTIONS => write!(f, "OPTIONS"),
-            CUSTOM(method) => write!(f, "{method}"),
+            Get => write!(f, "GET"),
+            Post => write!(f, "POST"),
+            Put => write!(f, "PUT"),
+            Head => write!(f, "HEAD"),
+            Delete => write!(f, "DELETE"),
+            Options => write!(f, "OPTIONS"),
+            Custom(method) => write!(f, "{method}"),
         }
     }
 }
@@ -76,7 +70,7 @@ impl Client {
             host,
             port: url.port,
             scheme: url.scheme.clone(),
-            method: Methods::GET,
+            method: Methods::Get,
             url,
             headers: Vec::new(),
             body: None,
@@ -95,7 +89,7 @@ impl Client {
     /// client.get();
     /// ```
     pub fn get(&mut self) -> &mut Self {
-        self.method = Methods::GET;
+        self.method = Methods::Get;
         self
     }
 
@@ -108,7 +102,7 @@ impl Client {
     /// client.post();
     /// ```
     pub fn post(&mut self) -> &mut Self {
-        self.method = Methods::POST;
+        self.method = Methods::Post;
         self
     }
 
@@ -121,7 +115,7 @@ impl Client {
     /// client.put();
     /// ```
     pub fn put(&mut self) -> &mut Self {
-        self.method = Methods::PUT;
+        self.method = Methods::Put;
         self
     }
 
@@ -134,7 +128,7 @@ impl Client {
     /// client.head();
     /// ```
     pub fn head(&mut self) -> &mut Self {
-        self.method = Methods::HEAD;
+        self.method = Methods::Head;
         self
     }
 
@@ -147,7 +141,7 @@ impl Client {
     /// client.delete();
     /// ```
     pub fn delete(&mut self) -> &mut Self {
-        self.method = Methods::DELETE;
+        self.method = Methods::Delete;
         self
     }
 
@@ -160,7 +154,7 @@ impl Client {
     /// client.options();
     /// ```
     pub fn options(&mut self) -> &mut Self {
-        self.method = Methods::OPTIONS;
+        self.method = Methods::Options;
         self
     }
 
@@ -173,7 +167,7 @@ impl Client {
     /// client.request("profile");
     /// ```
     pub fn request(&mut self, method: &str) -> &mut Self {
-        self.method = Methods::CUSTOM(method.to_owned());
+        self.method = Methods::Custom(method.to_owned());
         self
     }
 
@@ -245,22 +239,12 @@ impl Client {
     /// ```
     pub fn proxy(&mut self, proxy: &str) -> Result<&mut Self, HttpError> {
         let url: Url = Url::parse(proxy);
+
         if self.scheme == "https" && url.scheme == "http" {
             return Err(HttpError::Proxy("Http proxy can only use http scheme."));
         }
 
-        let host = match url.host {
-            Some(ref h) => h.clone(),
-            None => return Err(HttpError::Parse("url parse error")),
-        };
-
-        let proxy = Proxy {
-            host,
-            port: url.port,
-            scheme: url.scheme.clone(),
-            url,
-        };
-        self.proxy = Some(proxy);
+        self.proxy = Some(Proxy(url));
         Ok(self)
     }
 
@@ -273,175 +257,74 @@ impl Client {
     /// client.request("GET").send();
     /// ```
     pub fn send(&mut self) -> Result<Response, HttpError> {
+        let header = self.build_header();
+        let connector = TlsConnector::builder().build()?;
+        let mut stream = TcpStream::connect((self.host.clone(), self.port))?;
+        let mut ssl_stream = connector.connect(&self.host, TcpStream::connect((self.host.clone(), self.port))?)?;
+
+        stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
+        stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
+
         if let Some(ref proxy) = self.proxy {
-            if proxy.scheme == "http" {
-                let header = self.build_header();
-                let addr = format!("{}:{}", proxy.host, proxy.port);
-                let mut stream = TcpStream::connect(addr)?;
-                stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                stream.write_all(header.as_bytes())?;
-                if let Some(ref body) = self.body {
-                    stream.write_all(body.as_slice())?;
-                }
-                stream.flush()?;
-                let mut res: Vec<u8> = Vec::new();
-                stream.read_to_end(&mut res)?;
-                let back = Response::new(res)?;
-                Ok(back)
+            if proxy.0.scheme == "http" {
+                Self::write_all(&mut stream, self.body.as_ref(), header.as_bytes())
             } else {
-                //CONNECT proxy.google.com:443 HTTP/1.1
-                //Host: www.google.com:443
-                //Proxy-Connection: keep-alive
-                let mut connect_header = String::new();
-                connect_header
-                    .push_str(&format!("CONNECT {}:{} HTTP/1.1\r\n", self.host, self.port));
-                connect_header.push_str(&format!("Host: {}:{}\r\n", self.host, self.port));
-                connect_header.push_str("\r\n");
-                let addr = format!("{}:{}", proxy.host, proxy.port);
-                let mut stream = TcpStream::connect(addr)?;
-                stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-                stream.write_all(connect_header.as_bytes())?;
-                stream.flush()?;
+                let connect_header = format!("CONNECT {host}:{port} HTTP/1.1\r\nHost: {host}:{port}\r\n\r\n",
+                    host = self.host,
+                    port = self.port);
+                
+                let res = Self::write_all(&mut stream, None, connect_header.as_bytes())?;
 
-                //HTTP/1.1 200 Connection Established
-                let mut res = [0u8; 1024];
-                stream.read_exact(&mut res)?;
-
-                let res_s = match String::from_utf8(res.to_owned().to_vec()) {
-                    Ok(r) => r,
-                    Err(_) => return Err(HttpError::Proxy("parse proxy server response error.")),
-                };
-                if !res_s
-                    .to_ascii_lowercase()
-                    .contains("connection established")
-                {
+                if !res.text().contains("connection established") {
                     return Err(HttpError::Proxy("Proxy server response error."));
                 }
 
                 if self.scheme == "http" {
-                    let header = self.build_header();
-                    stream.write_all(header.as_bytes())?;
-                    if let Some(ref body) = self.body {
-                        stream.write_all(body.as_slice())?;
-                    }
-                    stream.flush()?;
-                    let mut res: Vec<u8> = Vec::new();
-                    stream.read_to_end(&mut res)?;
-                    let back = Response::new(res)?;
-                    Ok(back)
+                    Self::write_all(&mut stream, self.body.as_ref(), header.as_bytes())
                 } else {
-                    let connector = TlsConnector::builder().build()?;
-                    let mut ssl_stream;
-                    ssl_stream = connector.connect(&&self.host, stream)?;
-                    let header = self.build_header();
-                    ssl_stream.write_all(header.as_bytes())?;
-                    if let Some(ref body) = self.body {
-                        ssl_stream.write_all(body.as_slice())?;
-                    }
-                    ssl_stream.flush()?;
-                    let mut res: Vec<u8> = Vec::new();
-                    ssl_stream.read_to_end(&mut res)?;
-                    let back = Response::new(res)?;
-                    Ok(back)
+                    Self::write_all(&mut ssl_stream, self.body.as_ref(), header.as_bytes())
                 }
             }
         } else if self.scheme == "http" {
-            let header = self.build_header();
-            let addr = format!("{}:{}", self.host, self.port);
-            let mut stream = TcpStream::connect(addr)?;
-            stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-            stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-            stream.write_all(header.as_bytes())?;
-            if let Some(ref body) = self.body {
-                stream.write_all(body.as_slice())?;
-            }
-            stream.flush()?;
-            let mut res: Vec<u8> = Vec::new();
-            stream.read_to_end(&mut res)?;
-            let back = Response::new(res)?;
-            Ok(back)
+            Self::write_all(&mut stream, self.body.as_ref(), header.as_bytes())
         } else {
-            let addr = format!("{}:{}", self.host, self.port);
-            let stream = TcpStream::connect(addr)?;
-            stream.set_read_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-            stream.set_write_timeout(Some(time::Duration::from_secs(self.timeout)))?;
-            let connector = TlsConnector::builder().build()?;
-            let mut ssl_stream;
-
-            ssl_stream = connector.connect(&&self.host, stream)?;
-
-            let header = self.build_header();
-            ssl_stream.write_all(header.as_bytes())?;
-            if let Some(ref body) = self.body {
-                ssl_stream.write_all(body.as_slice())?;
-            }
-            ssl_stream.flush()?;
-
-            let mut res: Vec<u8> = Vec::new();
-            ssl_stream.read_to_end(&mut res)?;
-            let back = Response::new(res)?;
-            Ok(back)
+            Self::write_all(&mut ssl_stream, self.body.as_ref(), header.as_bytes())
         }
     }
 
     //build http request headers
     fn build_header(&self) -> String {
-        if let Some(ref proxy) = self.proxy {
-            if proxy.scheme == "http" {
-                let mut headers = String::new();
-                headers.push_str(&format!(
-                    "{} {} HTTP/1.1\r\n",
-                    self.method,
-                    self.url.as_string()
-                ));
-                headers.push_str(&format!("Host: {}:{}\r\n", self.host, self.port));
-                headers.push_str("Connection: Close\r\n");
-                if let Some(ref body) = self.body {
-                    headers.push_str(&format!("Content-Length: {}\r\n", body.len()));
-                }
-                for (i, k) in &self.headers {
-                    headers.push_str(&format!("{}: {}\r\n", i, k));
-                }
-                headers.push_str("\r\n");
-                headers
-            } else {
-                let mut headers = String::new();
-                headers.push_str(&format!(
-                    "{} {} HTTP/1.1\r\n",
-                    self.method,
-                    self.url.request_string()
-                ));
-                headers.push_str(&format!("Host: {}:{}\r\n", self.host, self.port));
-                headers.push_str("Connection: Close\r\n");
-                if let Some(ref body) = self.body {
-                    headers.push_str(&format!("Content-Length: {}\r\n", body.len()));
-                }
-                for (i, k) in &self.headers {
-                    headers.push_str(&format!("{}: {}\r\n", i, k));
-                }
-                headers.push_str("\r\n");
-                headers
-            }
-        } else {
-            let mut headers = String::new();
-            headers.push_str(&format!(
-                "{} {} HTTP/1.1\r\n",
-                self.method,
-                self.url.request_string()
-            ));
-            headers.push_str(&format!("Host: {}:{}\r\n", self.host, self.port));
-            headers.push_str("Connection: Close\r\n");
-            if let Some(ref body) = self.body {
-                headers.push_str(&format!("Content-Length: {}\r\n", body.len()));
-            }
-            for (i, k) in &self.headers {
-                headers.push_str(&format!("{}: {}\r\n", i, k));
-            }
-            headers.push_str("\r\n");
-            headers
+        let mut headers = format!("{method} {url} HTTP/1.1\r\nHost: {host}:{port}\r\nConnection: Close\r\n",
+            method = self.method,
+            url = self.url.request_string(),
+            host = self.host,
+            port = self.port);
+
+        if let Some(ref body) = self.body {
+            headers.push_str(&format!("Content-Length: {}\r\n", body.len()));
         }
+
+        for (i, k) in &self.headers {
+            headers.push_str(&format!("{}: {}\r\n", i, k));
+        }
+
+        headers.push_str("\r\n");
+        headers
+    }
+
+    fn write_all<S>(stream: &mut S, body: Option<&Vec<u8>>, headers: &[u8]) -> Result<Response, HttpError>
+    where 
+        S: std::io::Read + std::io::Write,
+    {
+        stream.write_all(headers)?;
+        if let Some(body) = body {
+            stream.write_all(body)?;
+        }
+        stream.flush()?;
+
+        let mut res: Vec<u8> = Vec::new();
+        stream.read_to_end(&mut res)?;
+        Ok(Response::new(res)?)
     }
 }
 
