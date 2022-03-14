@@ -90,7 +90,7 @@ pub enum HttpError {
 ///set Request GET method
 /// # Example
 /// ```
-/// let content = minihttp::get("https://www.google.com").unwrap().text();
+/// let content = smolhttp::get("https://docs.rs").unwrap().text();
 /// ```
 #[inline(always)]
 pub fn get(url: &str) -> Result<Response, HttpError> {
@@ -100,7 +100,7 @@ pub fn get(url: &str) -> Result<Response, HttpError> {
 ///set Request POST method
 /// # Example
 /// ```
-/// let content = minihttp::post("https://www.google.com").unwrap().text();
+/// let content = smolhttp::post("https://docs.rs").unwrap().text();
 /// ```
 #[inline(always)]
 pub fn post(url: &str) -> Result<Response, HttpError> {
@@ -110,7 +110,7 @@ pub fn post(url: &str) -> Result<Response, HttpError> {
 ///set Request HEAD method
 /// # Example
 /// ```
-/// let content = minihttp::head("https://www.google.com").unwrap().text();
+/// let content = smolhttp::head("https://docs.rs").unwrap().text();
 /// ```
 #[inline(always)]
 pub fn head(url: &str) -> Result<Response, HttpError> {
@@ -120,7 +120,7 @@ pub fn head(url: &str) -> Result<Response, HttpError> {
 ///set Request DELETE method
 /// # Example
 /// ```
-/// let content = minihttp::delete("https://www.google.com").unwrap().text();
+/// let content = smolhttp::delete("https://docs.rs").unwrap().text();
 /// ```
 #[inline(always)]
 pub fn delete(url: &str) -> Result<Response, HttpError> {
@@ -130,7 +130,7 @@ pub fn delete(url: &str) -> Result<Response, HttpError> {
 ///set Request PUT method
 /// # Example
 /// ```
-/// let content = minihttp::put("https://www.google.com").unwrap().text();
+/// let content = smolhttp::put("https://docs.rs").unwrap().text();
 /// ```
 #[inline(always)]
 pub fn put(url: &str) -> Result<Response, HttpError> {
@@ -140,7 +140,7 @@ pub fn put(url: &str) -> Result<Response, HttpError> {
 ///set Request OPTIONS method
 /// # Example
 /// ```
-/// let content = minihttp::options("https://www.google.com").unwrap().text();
+/// let content = smolhttp::options("https://docs.rs").unwrap().text();
 /// ```
 #[inline(always)]
 pub fn options(url: &str) -> Result<Response, HttpError> {
