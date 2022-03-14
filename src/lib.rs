@@ -1,7 +1,8 @@
 //! This project is a fork of the original [`minihttp`](https://crates.io/crates/minihttp) that tries to improve the code and add more features,
 //! dont pushing aside the main purpose of the project thats is to be `simple and lightweight`.
 //! 
-//! # Example
+//! # Examples
+//! 
 //! ## Sending a GET request
 //! ```no_run
 //! // Using the shortcut function
@@ -12,8 +13,6 @@
 //! let content = smolhttp::Client::new("https://www.rust-lang.org").unwrap().get().send().unwrap().text();
 //! println!("{content}");
 //! ```
-//! 
-//! # Examples
 //! 
 //! ## Sending a POST request
 //! ```no_run
